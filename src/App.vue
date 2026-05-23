@@ -5,6 +5,8 @@ import AddressCell from "./components/AddressCell.vue";
 import QueueTable from "./components/QueueTable.vue";
 import SectionBlock from "./components/SectionBlock.vue";
 import StatCard from "./components/StatCard.vue";
+import TimelockEventsTable from "./components/TimelockEventsTable.vue";
+import { useTimelockEvents } from "./composables/useTimelockEvents";
 import { useVaultData } from "./composables/useVaultData";
 import {
   BALANCED_ROUTING_MODE,
@@ -37,6 +39,23 @@ const { data, state, error, refresh, isStale, sectionState } = useVaultData(
   () => autoRefresh.value
 );
 
+const {
+  timelockAddress,
+  events: timelockEvents,
+  fromBlock: timelockFromBlock,
+  error: timelockError,
+  refresh: refreshTimelock,
+  sectionState: timelockSectionState,
+} = useTimelockEvents(
+  () => networkKey.value,
+  () => autoRefresh.value
+);
+
+function refreshAll() {
+  void refresh();
+  void refreshTimelock();
+}
+
 const NAV_ITEMS = [
   { id: "overview", key: "nav.overview" },
   { id: "governance", key: "nav.governance" },
@@ -44,6 +63,7 @@ const NAV_ITEMS = [
   { id: "parameters", key: "nav.parameters" },
   { id: "proxies", key: "nav.proxies" },
   { id: "voting", key: "nav.voting" },
+  { id: "timelock-events", key: "nav.timelockEvents" },
   { id: "redeem-queue", key: "nav.redeemQueue" },
   { id: "candidate-queue", key: "nav.candidateQueue" },
   { id: "raw-data", key: "nav.rawData" },
@@ -137,7 +157,7 @@ function exportJson() {
           <input v-model="autoRefresh" type="checkbox" />
           {{ t("header.autoRefresh") }}
         </label>
-        <button type="button" class="primary" :disabled="state === 'loading'" @click="refresh">
+        <button type="button" class="primary" :disabled="state === 'loading'" @click="refreshAll">
           {{ t("header.refresh") }}
         </button>
       </div>
@@ -435,6 +455,27 @@ function exportJson() {
             </tbody>
           </table>
         </div>
+      </SectionBlock>
+
+      <SectionBlock id="timelock-events" :title="t('timelock.title')" :state="timelockSectionState">
+        <p v-if="!timelockAddress" class="hint">{{ t("timelock.notConfigured") }}</p>
+        <template v-else>
+          <p class="hint">{{ t("timelock.hint") }}</p>
+          <div v-if="timelockError" class="banner banner-error">{{ timelockError }}</div>
+          <dl class="kv timelock-meta">
+            <dt>{{ t("timelock.contract") }}</dt>
+            <dd><AddressCell :address="timelockAddress" :explorer="net.explorer" /></dd>
+            <dt>{{ t("timelock.scanFrom") }}</dt>
+            <dd class="mono">{{ timelockFromBlock != null ? formatBlock(timelockFromBlock) : "—" }}</dd>
+            <dt>{{ t("timelock.eventCount") }}</dt>
+            <dd>{{ timelockEvents.length }}</dd>
+          </dl>
+          <TimelockEventsTable
+            :events="timelockEvents"
+            :explorer="net.explorer"
+            :empty="t('timelock.empty')"
+          />
+        </template>
       </SectionBlock>
 
       <SectionBlock id="redeem-queue" :title="t('queue.title')" :state="sectionState">

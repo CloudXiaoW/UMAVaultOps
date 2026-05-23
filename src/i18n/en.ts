@@ -1,5 +1,5 @@
 export default {
-  app: { title: "UMA Delegation Vault Ops",subtitle: "On-chain operations dashboard" },
+  app: { title: "UMA Delegation Vault Ops", subtitle: "On-chain operations dashboard" },
   nav: {
     overview: "Overview",
     governance: "Governance",
@@ -7,6 +7,7 @@ export default {
     parameters: "Parameters",
     proxies: "StakeProxy",
     voting: "Voting",
+    timelockEvents: "Timelock Events",
     redeemQueue: "Redeem Queue",
     candidateQueue: "Candidate Queue",
     rawData: "Raw Data",
@@ -118,6 +119,22 @@ export default {
     unstakeReady: "Unstake Ready",
     commit: "Commit Current Round",
     reveal: "Reveal Current Round",
+  },
+  timelock: {
+    title: "Timelock Authorization Events",
+    hint: "Monitors OpenZeppelin TimelockController scheduling, execution, cancellation, and role events (last ~400k blocks).",
+    notConfigured: "Set VITE_TIMELOCK_ADDRESS in .env to enable this section.",
+    contract: "Timelock Contract",
+    scanFrom: "Scan From Block",
+    eventCount: "Events",
+    empty: "No Timelock events in range",
+    colTime: "Time",
+    colBlock: "Block",
+    colEvent: "Event",
+    colOpId: "Operation ID",
+    colTarget: "Target / Account",
+    colSummary: "Summary",
+    colTx: "Tx",
   },
   voting: {
     title: "Voting Round",

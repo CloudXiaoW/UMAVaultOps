@@ -11,6 +11,7 @@ interface ImportMetaEnv {
   readonly VITE_VAULT_ADDRESS?: string;
   readonly VITE_PROXY_ADDRESSES?: string;
   readonly VITE_CHAIN?: string;
+  readonly VITE_TIMELOCK_ADDRESS?: string;
 }
 
 interface ImportMeta {
