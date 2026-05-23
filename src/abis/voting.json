@@ -3,40 +3,56 @@
     "type": "function",
     "name": "getCurrentRoundId",
     "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint32"
-      }
-    ],
+    "outputs": [{ "name": "", "type": "uint32" }],
     "stateMutability": "view"
   },
   {
     "type": "function",
     "name": "getVotePhase",
     "inputs": [],
+    "outputs": [{ "name": "", "type": "uint8" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getRoundEndTime",
+    "inputs": [{ "name": "roundId", "type": "uint256" }],
+    "outputs": [{ "name": "", "type": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getPendingRequests",
+    "inputs": [],
     "outputs": [
       {
         "name": "",
-        "type": "uint8"
+        "type": "tuple[]",
+        "components": [
+          { "name": "lastVotingRound", "type": "uint32" },
+          { "name": "isGovernance", "type": "bool" },
+          { "name": "time", "type": "uint256" },
+          { "name": "rollCount", "type": "uint32" },
+          { "name": "identifier", "type": "bytes32" },
+          { "name": "ancillaryData", "type": "bytes" }
+        ]
       }
     ],
     "stateMutability": "view"
   },
   {
     "type": "function",
-    "name": "getRoundEndTime",
-    "inputs": [
-      {
-        "name": "roundId",
-        "type": "uint256"
-      }
-    ],
+    "name": "voterStakes",
+    "inputs": [{ "name": "voter", "type": "address" }],
     "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
+      { "name": "stake", "type": "uint128" },
+      { "name": "pendingUnstake", "type": "uint128" },
+      { "name": "rewardsPaidPerToken", "type": "uint128" },
+      { "name": "outstandingRewards", "type": "uint128" },
+      { "name": "unappliedSlash", "type": "int128" },
+      { "name": "nextIndexToProcess", "type": "uint64" },
+      { "name": "unstakeTime", "type": "uint64" },
+      { "name": "delegate", "type": "address" }
     ],
     "stateMutability": "view"
   },
@@ -44,77 +60,26 @@
     "type": "event",
     "name": "VoteCommitted",
     "inputs": [
-      {
-        "name": "voter",
-        "type": "address",
-        "indexed": true
-      },
-      {
-        "name": "caller",
-        "type": "address",
-        "indexed": true
-      },
-      {
-        "name": "roundId",
-        "type": "uint32",
-        "indexed": false
-      },
-      {
-        "name": "identifier",
-        "type": "bytes32",
-        "indexed": false
-      },
-      {
-        "name": "time",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "ancillaryData",
-        "type": "bytes",
-        "indexed": false
-      }
+      { "name": "voter", "type": "address", "indexed": true },
+      { "name": "caller", "type": "address", "indexed": true },
+      { "name": "roundId", "type": "uint32", "indexed": false },
+      { "name": "identifier", "type": "bytes32", "indexed": true },
+      { "name": "time", "type": "uint256", "indexed": false },
+      { "name": "ancillaryData", "type": "bytes", "indexed": false }
     ]
   },
   {
     "type": "event",
     "name": "VoteRevealed",
     "inputs": [
-      {
-        "name": "voter",
-        "type": "address",
-        "indexed": true
-      },
-      {
-        "name": "caller",
-        "type": "address",
-        "indexed": true
-      },
-      {
-        "name": "roundId",
-        "type": "uint32",
-        "indexed": false
-      },
-      {
-        "name": "identifier",
-        "type": "bytes32",
-        "indexed": false
-      },
-      {
-        "name": "time",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "ancillaryData",
-        "type": "bytes",
-        "indexed": false
-      },
-      {
-        "name": "price",
-        "type": "int256",
-        "indexed": false
-      }
+      { "name": "voter", "type": "address", "indexed": true },
+      { "name": "caller", "type": "address", "indexed": true },
+      { "name": "roundId", "type": "uint32", "indexed": false },
+      { "name": "identifier", "type": "bytes32", "indexed": true },
+      { "name": "time", "type": "uint256", "indexed": false },
+      { "name": "ancillaryData", "type": "bytes", "indexed": false },
+      { "name": "price", "type": "int256", "indexed": false },
+      { "name": "numTokens", "type": "uint128", "indexed": false }
     ]
   }
 ]

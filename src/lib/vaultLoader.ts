@@ -1,7 +1,8 @@
-import { decodeEventLog, parseAbiItem, type Log, type PublicClient } from "viem";
+import type { PublicClient } from "viem";
 import { PROXY_STATUS } from "../config/networks";
 import type { ProxySnapshot, RedeemQueueItem, VaultSnapshot } from "../types";
 import { ABIS, readContract } from "./contracts";
+import { fetchProxyVoting } from "./proxyVoting";
 import { readPendingCandidateSenders, readVaultDynamicFields } from "./storage";
 
 async function discoverProxies(
@@ -17,61 +18,6 @@ async function discoverProxies(
     if (p && p !== "0x0000000000000000000000000000000000000000") addrs.push(p);
   }
   return addrs;
-}
-
-async function fetchProxyVoting(
-  client: PublicClient,
-  voting: `0x${string}`,
-  proxy: `0x${string}`,
-  currentRoundId: number,
-  fromBlock: bigint
-): Promise<Pick<ProxySnapshot, "committedCurrentRound" | "revealedCurrentRound" | "lastCommitRoundId" | "lastRevealRoundId">> {
-  let committedCurrentRound = false;
-  let revealedCurrentRound = false;
-  let lastCommitRoundId: number | null = null;
-  let lastRevealRoundId: number | null = null;
-
-  try {
-    const [commitLogs, revealLogs] = await Promise.all([
-      client.getLogs({
-        address: voting,
-        event: parseAbiItem(
-          "event VoteCommitted(address indexed voter, address indexed caller, uint32 roundId, bytes32 identifier, uint256 time, bytes ancillaryData)"
-        ),
-        args: { voter: proxy },
-        fromBlock,
-        toBlock: "latest",
-      }),
-      client.getLogs({
-        address: voting,
-        event: parseAbiItem(
-          "event VoteRevealed(address indexed voter, address indexed caller, uint32 roundId, bytes32 identifier, uint256 time, bytes ancillaryData, int256 price)"
-        ),
-        args: { voter: proxy },
-        fromBlock,
-        toBlock: "latest",
-      }),
-    ]);
-
-    for (const log of commitLogs as Log[]) {
-      const decoded = decodeEventLog({ abi: ABIS.voting, data: log.data, topics: log.topics });
-      if (decoded.eventName !== "VoteCommitted") continue;
-      const roundId = Number((decoded.args as unknown as { roundId: number }).roundId);
-      if (roundId > (lastCommitRoundId ?? 0)) lastCommitRoundId = roundId;
-      if (roundId === currentRoundId) committedCurrentRound = true;
-    }
-    for (const log of revealLogs as Log[]) {
-      const decoded = decodeEventLog({ abi: ABIS.voting, data: log.data, topics: log.topics });
-      if (decoded.eventName !== "VoteRevealed") continue;
-      const roundId = Number((decoded.args as unknown as { roundId: number }).roundId);
-      if (roundId > (lastRevealRoundId ?? 0)) lastRevealRoundId = roundId;
-      if (roundId === currentRoundId) revealedCurrentRound = true;
-    }
-  } catch {
-    /* RPC log limits */
-  }
-
-  return { committedCurrentRound, revealedCurrentRound, lastCommitRoundId, lastRevealRoundId };
 }
 
 async function fetchRedeemQueue(
@@ -131,7 +77,6 @@ export async function loadVaultSnapshot(
   const errors: Record<string, string> = {};
   const block = await client.getBlock({ blockTag: "latest" });
   const blockNumber = block.number;
-  const fromBlock = blockNumber > 50_000n ? blockNumber - 50_000n : 0n;
   const vault = vaultAddress;
 
   const baseReads = await Promise.allSettled([
@@ -246,7 +191,7 @@ export async function loadVaultSnapshot(
         readContract<boolean>(client, proxy, ABIS.stakeProxy, "requestUnstakePaused"),
         readContract<boolean>(client, proxy, ABIS.stakeProxy, "executeUnstakePaused"),
         readContract<bigint>(client, proxy, ABIS.stakeProxy, "unstakeReadyTime"),
-        fetchProxyVoting(client, votingV2, proxy, currentRoundId, fromBlock),
+        fetchProxyVoting(client, votingV2, proxy, currentRoundId, blockNumber, roundEndTime),
       ]);
 
       const [, staked, pending, rewards] = proxyInfo;
