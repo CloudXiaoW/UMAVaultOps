@@ -1,5 +1,5 @@
 export default {
-  app: { title: "UMA Delegation Vault Ops", subtitle: "On-chain operations dashboard" },
+  app: { title: "UMA Delegation Vault Ops",subtitle: "On-chain operations dashboard" },
   nav: {
     overview: "Overview",
     governance: "Governance",
