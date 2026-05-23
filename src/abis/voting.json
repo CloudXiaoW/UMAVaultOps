@@ -1,0 +1,120 @@
+[
+  {
+    "type": "function",
+    "name": "getCurrentRoundId",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getVotePhase",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getRoundEndTime",
+    "inputs": [
+      {
+        "name": "roundId",
+        "type": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "event",
+    "name": "VoteCommitted",
+    "inputs": [
+      {
+        "name": "voter",
+        "type": "address",
+        "indexed": true
+      },
+      {
+        "name": "caller",
+        "type": "address",
+        "indexed": true
+      },
+      {
+        "name": "roundId",
+        "type": "uint32",
+        "indexed": false
+      },
+      {
+        "name": "identifier",
+        "type": "bytes32",
+        "indexed": false
+      },
+      {
+        "name": "time",
+        "type": "uint256",
+        "indexed": false
+      },
+      {
+        "name": "ancillaryData",
+        "type": "bytes",
+        "indexed": false
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "VoteRevealed",
+    "inputs": [
+      {
+        "name": "voter",
+        "type": "address",
+        "indexed": true
+      },
+      {
+        "name": "caller",
+        "type": "address",
+        "indexed": true
+      },
+      {
+        "name": "roundId",
+        "type": "uint32",
+        "indexed": false
+      },
+      {
+        "name": "identifier",
+        "type": "bytes32",
+        "indexed": false
+      },
+      {
+        "name": "time",
+        "type": "uint256",
+        "indexed": false
+      },
+      {
+        "name": "ancillaryData",
+        "type": "bytes",
+        "indexed": false
+      },
+      {
+        "name": "price",
+        "type": "int256",
+        "indexed": false
+      }
+    ]
+  }
+]
