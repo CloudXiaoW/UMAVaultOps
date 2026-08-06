@@ -8,7 +8,7 @@ export const DEFAULT_ADMIN_ROLE =
   "0x0000000000000000000000000000000000000000000000000000000000000000" as const;
 
 // const LOG_BLOCK_RANGE = 400_000n;
-const LOG_BLOCK_RANGE = 10_000n;
+const LOG_BLOCK_RANGE = 9_999n;
 
 export type TimelockEventType =
   | "CallScheduled"
