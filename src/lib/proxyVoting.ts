@@ -26,21 +26,25 @@ type PendingRequest = {
   ancillaryData: `0x${string}`;
 };
 
+type VoteEvent = typeof VOTE_COMMITTED | typeof VOTE_REVEALED;
+
+/** Decoded VoteCommitted / VoteRevealed args we actually read. */
+type VoteLog = {
+  transactionHash: `0x${string}` | null;
+  logIndex: number | null;
+  args: {
+    roundId?: number;
+    identifier?: `0x${string}`;
+    time?: bigint;
+    ancillaryData?: `0x${string}`;
+  };
+};
+
 function requestKey(identifier: `0x${string}`, time: bigint, ancillaryData: `0x${string}`): string {
   return `${identifier.toLowerCase()}-${time.toString()}-${ancillaryData.toLowerCase()}`;
 }
 
-function collectRoundKeys(
-  logs: {
-    args: {
-      roundId?: number;
-      identifier?: `0x${string}`;
-      time?: bigint;
-      ancillaryData?: `0x${string}`;
-    };
-  }[],
-  currentRoundId: number
-): Set<string> {
+function collectRoundKeys(logs: VoteLog[], currentRoundId: number): Set<string> {
   const keys = new Set<string>();
   for (const log of logs) {
     const { roundId, identifier, time, ancillaryData } = log.args;
@@ -56,20 +60,20 @@ async function getLogsChunked(
   client: PublicClient,
   params: {
     address: `0x${string}`;
-    event: typeof VOTE_COMMITTED | typeof VOTE_REVEALED;
+    event: VoteEvent;
     args: { voter?: `0x${string}`; caller?: `0x${string}` };
     fromBlock: bigint;
     toBlock: bigint;
   }
-) {
+): Promise<VoteLog[]> {
   const { fromBlock, toBlock, ...rest } = params;
   if (toBlock < fromBlock) return [];
 
-  const all: Awaited<ReturnType<PublicClient["getLogs"]>> = [];
+  const all: VoteLog[] = [];
   for (let start = fromBlock; start <= toBlock; start += LOG_CHUNK_BLOCKS + 1n) {
     const end = start + LOG_CHUNK_BLOCKS > toBlock ? toBlock : start + LOG_CHUNK_BLOCKS;
     const logs = await client.getLogs({ ...rest, fromBlock: start, toBlock: end });
-    all.push(...logs);
+    all.push(...(logs as VoteLog[]));
   }
   return all;
 }
@@ -77,12 +81,12 @@ async function getLogsChunked(
 async function fetchVoteLogs(
   client: PublicClient,
   voting: `0x${string}`,
-  event: typeof VOTE_COMMITTED | typeof VOTE_REVEALED,
+  event: VoteEvent,
   voter: `0x${string}`,
   caller: `0x${string}` | null,
   fromBlock: bigint,
   toBlock: bigint
-) {
+): Promise<VoteLog[]> {
   const byVoter = await getLogsChunked(client, {
     address: voting,
     event,
